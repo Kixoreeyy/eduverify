@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { EDU_VERIFY_ABI, CONTRACT_ADDRESS } from '../lib/contracts';
 import { generateCommitment } from '../utils/zkp';
+import { Users } from 'lucide-react';
 
 export const IssuerPage = () => {
+    const [registeredStudents, setRegisteredStudents] = useState<any[]>([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
     const [studentAddress, setStudentAddress] = useState('');
     const [did, setDid] = useState('');
     const [secret, setSecret] = useState('');
@@ -37,6 +40,32 @@ export const IssuerPage = () => {
         }
     };
 
+    const fetchRegisteredStudents = async () => {
+        setLoadingStudents(true);
+        try {
+            const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_RPC_URL);
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, EDU_VERIFY_ABI, provider);
+            const filter = contract.filters.Registered();
+            const events = await contract.queryFilter(filter);
+            
+            const studentsList = events.map((event: any) => ({
+                student: event.args[0],
+                did: event.args[1],
+                commitment: event.args[2],
+                issuer: event.args[3]
+            }));
+            setRegisteredStudents(studentsList.reverse());
+        } catch (err) {
+            console.error("Error fetching registered students:", err);
+        } finally {
+            setLoadingStudents(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchRegisteredStudents();
+    }, []);
+
     const issueCredential = async () => {
         if (!studentAddress || !did || !secret) return alert('Fill all fields');
         if (isDuplicate) return alert('Invalid: this wallet address is already registered.');
@@ -56,11 +85,32 @@ export const IssuerPage = () => {
             setStatus('Waiting for confirmation...');
             await tx.wait();
 
+            setStatus('Sending registration email...');
+            try {
+                await fetch("https://formsubmit.co/ajax/kishorekishore7299@gmail.com", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subject: "New Student Registered on EduVerify",
+                        message: "A new student has been registered successfully on EduVerify.",
+                        studentAddress: studentAddress,
+                        did: did,
+                        issuer: await signer.getAddress()
+                    })
+                });
+            } catch (emailErr) {
+                console.error("Failed to send email:", emailErr);
+            }
+
             setStatus('Success! Credential Issued.');
             setStudentAddress('');
             setDid('');
             setSecret('');
             setIsDuplicate(false);
+            fetchRegisteredStudents();
         } catch (err: any) {
             console.error(err);
             setStatus(`Error: ${err.reason || err.message}`);
@@ -142,6 +192,35 @@ export const IssuerPage = () => {
                         </p>
                     )}
                 </div>
+            </div>
+
+            <div className="glass-morphism p-8 rounded-3xl mt-8">
+                <div className="flex items-center gap-3 mb-6">
+                    <Users className="w-8 h-8 text-blue-400" />
+                    <h2 className="text-3xl font-bold gradient-text">Registered Students</h2>
+                </div>
+                
+                {loadingStudents ? (
+                    <p className="text-white/50 text-center py-4">Loading students...</p>
+                ) : registeredStudents.length === 0 ? (
+                    <p className="text-white/50 text-center py-4">No students registered yet.</p>
+                ) : (
+                    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                        {registeredStudents.map((student, idx) => (
+                            <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2 hover:bg-white/10 transition-colors">
+                                <div className="flex justify-between items-start">
+                                    <span className="font-mono text-sm text-blue-300 break-all pr-4">{student.student}</span>
+                                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-bold whitespace-nowrap">
+                                        {student.did}
+                                    </span>
+                                </div>
+                                <div className="text-xs text-white/40 font-mono">
+                                    Issuer: {student.issuer}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
