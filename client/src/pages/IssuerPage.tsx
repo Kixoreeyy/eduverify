@@ -118,7 +118,15 @@ export const IssuerPage = () => {
                 <h2 className="text-3xl font-bold mb-6 gradient-text">Issuer Dashboard</h2>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Student Wallet Address</label>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-medium">Student Wallet Address</label>
+                            <button 
+                                onClick={() => setStudentAddress(ethers.Wallet.createRandom().address)}
+                                className="text-xs text-blue-400 font-bold px-2 py-1 bg-blue-500/10 rounded-md hover:bg-blue-500/20 transition-all"
+                            >
+                                ✨ Auto-Generate Random Wallet
+                            </button>
+                        </div>
                         <input
                             value={studentAddress}
                             onChange={(e) => setStudentAddress(e.target.value)}
