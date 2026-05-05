@@ -21,7 +21,6 @@ contract EduVerify is Ownable {
     constructor() Ownable(msg.sender) {}
 
     function registerDID(address _student, string memory _did, bytes32 _commitment) external onlyOwner {
-        require(!students[_student].exists, "Wallet address is already registered");
         students[_student] = Student({
             did: _did,
             commitment: _commitment,

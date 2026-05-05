@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate FormSubmit</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #111; color: white; }
+        .card { background: #222; padding: 2rem; border-radius: 12px; text-align: center; }
+        button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-top: 1rem; }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Enable Email Notifications 📧</h2>
+        <p>FormSubmit requires you to activate your email address before they allow code to send emails automatically.</p>
+        <form action="https://formsubmit.co/kishorekishore7299@gmail.com" method="POST" target="_blank">
+            <input type="hidden" name="message" value="You have successfully triggered the FormSubmit activation process!">
+            <!-- Require no captcha for seamless use later -->
+            <input type="hidden" name="_captcha" value="false">
+            <button type="submit">Step 1: Click here to Activate!</button>
+        </form>
+        <p style="font-size: 0.9rem; color: #888; margin-top: 1.5rem;">After clicking, check your inbox (or spam) for the activation link.</p>
+    </div>
+</body>
+</html>

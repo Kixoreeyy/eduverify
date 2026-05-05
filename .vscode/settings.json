@@ -1,0 +1,6 @@
+{
+  "code-runner.executorMap": {
+    "typescriptreact": "echo '\\n\\n🚀 React/Vite applications should not be run using this Play button. Please press F5 instead, or open the terminal and type `cd client && npm run dev`!\\n\\n'",
+    "typescript": "echo '\\n\\n🚀 React/Vite applications should not be run using this Play button. Please press F5 instead, or open the terminal and type `cd client && npm run dev`!\\n\\n'"
+  }
+}
